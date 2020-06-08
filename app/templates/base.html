@@ -11,8 +11,32 @@
     {% endif %}
 </head>
 <body>
-    <div>Microblog: <a href="/index">Home</a></div>
+    <div>Microblog: 
+        <!-- don't hardcode urls into templates 
+        That way in case the links are changed or refactored you won't have
+        to comb through all the templates looking to change them-->
+        <a href="{{url_for('index')}}">Home</a>
+        <a href="{{url_for('login')}}">Login</a>
+    
+    </div>
     <hr>
+    <!-- flash messages aren't rendered by default 
+    
+    the with statements assigns the results of get_flashed_messages
+    to messages variable.  The get_flashed_messages has been implemented in
+    base.html so in case other pages may utilise this functionality, there will be no need
+    to do it again because of template inheritance-->
+    {% with messages = get_flashed_messages() %}  
+    {% if messages %}
+    <ul>
+    {% for message in message %}
+    <li>{{message}}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
     {% block content %}{% endblock %}
     
 </body>
