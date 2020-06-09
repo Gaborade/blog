@@ -16,7 +16,14 @@
         That way in case the links are changed or refactored you won't have
         to comb through all the templates looking to change them-->
         <a href="{{url_for('index')}}">Home</a>
+        <!-- if user has not logged in yet, display log in link -->
+        {% if current_user.is_anonymous %}
         <a href="{{url_for('login')}}">Login</a>
+        {% else %}
+        <!-- else if user is not anonymous, then user is logged in 
+        so display logout link rather to make it more intuitive-->
+        <a href="{{url_for('logout')}}">Logout</a>
+        {% endif %}
     
     </div>
     <hr>
