@@ -7,6 +7,7 @@ from flask_login import LoginManager
 # since we will be creating larger applications than normal better to 
 # create a sub-package and initialise flask in the __init__ file
 
+
 # The __name__ variable passed to the Flask class is a Python predefined variable, 
 #  which is set to the name of the module in which it is used
 app = Flask(__name__)
@@ -17,7 +18,7 @@ login = LoginManager(app)
 
 # certain pages are restricted unless user logs in
 # in order to accomplish that, the view function responsible for login
-# is supplied to the LoginManager login_view attribute as a string
+# is supplied to the LoginManager.login_view attribute as a string
 login.login_view = 'login'
 
 

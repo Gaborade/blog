@@ -1,11 +1,11 @@
-from app import app
-from app import db
+from app import app, db 
 from flask import render_template, flash, redirect, url_for
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm
 from flask_login import login_user, current_user, logout_user, login_required
 from app.models import User
 from flask import request
 from werkzeug.urls import url_parse
+from datetime import datetime
 
 
 posts = [
@@ -18,6 +18,18 @@ posts = [
         'body': 'The social vulgus listens'
     }
 ]
+
+
+
+@app.before_request  # before request decorator makes this function execute right before the view_function
+def before_request():
+    if current_user.is_authenticated:
+        # record last_seen field of user
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+
+
+
 
 @app.route('/')   # decorators can also be used as functions for callbacks
 # totally unrelated point though
@@ -37,7 +49,7 @@ def login():
     blocked from viewing but with a caveat. The previous page is attached to redirect to original url page 
     as the value of a query string called next.
     For eg, a restricted url named '/home'. User tries to access and is sent to log in. User logs in and is redirected back
-    to original page like this: '/login?next=/home'"""
+    to original page like this: '/login?next=/home' """
 
     # if user has already logged in current session or set
     # remember_me to True, redirect user to main page
@@ -78,7 +90,7 @@ def register():
         user.set_password(registration_form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Welcome to the League of Rogues and Bandits! Let the end begin')
+        flash('Welcome to the League of Rogues and Bandits! Let the end begin')  # what of goths and bots
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=registration_form)
 
@@ -89,16 +101,31 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     posts = [
         {'author': user, 'body': 'Test post#1'},
-        {'author': usr, 'body': 'Test post#2'}
+        {'author': user, 'body': 'Test post#2'}
     ]
     return render_template('user.html', user=user, posts=posts)
+
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    edit_form = EditProfileForm()
+    if edit_form.validate_on_submit():
+        current_user.username = edit_form.username.data
+        current_user.about_me = edit_form.about_me.data
+        db.session.commit()
+        flash('Your changes have been made')
+        return redirect(url_for("edit_profile"))
+        # when user initially requests for edit_profile.html page,
+        # repopulate fields with current data already stored in the database
+    elif request.method == 'GET':
+            edit_form.username.data = current_user.username
+            edit_form.about_me.data = current_user.about_me
+    # else if user makes a mistake with submission of forms just return page back to user
+    return render_template('edit_profile.html', title='Edit Profile', form=edit_form)
+
 
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-
-
-

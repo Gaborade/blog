@@ -1,0 +1,10 @@
+<!-- the _ character is just to help identify that it is a sub-template -->
+
+<table>
+    <tr valign="top">
+        <!-- posts can be back referenced to their users/authors 
+        avatars of posts by users should have smaller images -->
+        <td><img src="{{ post.author.avatar(38) }}"></td>
+        <td>{{post.author.username}} says: {{post.body}}</td>
+    </tr>
+</table>
