@@ -16,4 +16,11 @@ class Config:
     # good to set an environment variable or a fallback
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    # configuration variables for email/smtp server
+    MAIL_SERVER = os.environ.get('MAIL_SERVER') 
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25) # if email port is not set in environment variable,
+    # then the standard of 25 is used
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USERNAME = os.environ.get('MAIL_EMAIL')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = ['gabdanq@gmail.com']
