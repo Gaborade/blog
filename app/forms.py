@@ -40,6 +40,28 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+    def __init__(self, original_username, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
+
+
+    def validate_username(self, username):
+        # To make sure when user edits the username of their account, it doesn't match with a name already
+        # existing in the database
+        if username != self.original_username:
+            user = User.query.filter_by(username=username).first()
+            if user is not None:
+                raise ValidationError('Please use a different username')
+
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
+
+
+
+
+
         
 
 
