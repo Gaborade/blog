@@ -5,6 +5,8 @@
         <!-- posts can be back referenced to their users/authors 
         avatars of posts by users should have smaller images -->
         <td><img src="{{ post.author.avatar(38) }}"></td>
-        <td>{{post.author.username}} says: {{post.body}}</td>
+        <td>
+            <a href="{{url_for('user', username=post.author.username)}}">{{post.author.username}}</a>
+             says: {{post.body}}</td>
     </tr>
 </table>
