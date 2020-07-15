@@ -24,7 +24,12 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    posts = current_user.followed_posts().all()
+    # page variable tells page number to display. Page 1 as default
+    page = request.args.get('page', 1, type=int)
+    # NB: Pagination returns pagination objects. This means they are not iterable unless you attach a .items attribute in this case
+    posts = current_user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)  # boolean refers to the error flag
+    next_url = url_for('index', page=posts.next_num) if page.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if page.has_prev else None
     post_form = PostForm()
     if post_form.validate_on_submit():
         post = Post(body=post_form.post.data, author=current_user)
@@ -34,16 +39,30 @@ def index():
         # sidenote: better to use redirects for POST requests
         # This is to prevent duplicate insertions/submissions of the same post request
         # this practice is aptly valled the POST/redirect/GET pattern
+        # The reason is to avoid certain problems which happen due to the refresh button on browsers
+        # when say we submit a post request and hit the refresh button, the refresh button reissues the last request
+        # which in this case is the POST request. This creates the illusion that our post didn't actually submit
+        # meanwhile it did. To not cause this, we rather use a redirect which sets it to a GET request and removes the illusion 
+        # which thereby prevents us from submitting already submitted POST requests
         return redirect(url_for('index'))
-    return render_template('index.html', title='Home', posts=posts, form=post_form)
+    return render_template('index.html', title='Home', posts=posts.items, form=post_form, 
+    next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/explore')
 @login_required
 def explore():
-    all_posts = Post.query.order_by(Post.timestamp.desc()).all()
+    
+    page = request.args.get('page', 1, type=int)
+    all_posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    # if you use keyword arguments in url_for and the names of those arguments are not referenced directly in URL,
+    # Flask uses that keyword as a query string as we intend to do here ie for eg /explore?page=3
+    next_url = url_for('explore', page=all_posts.next_num) if page.has_next else None
+    prev_url = url_for('explore', page=all_posts.prev_num) if page.has_prev else None
+    
     # reuses index template which is used for home page as explore pages too
-    return render_template('index.html', title='Explore', posts=all_posts)
+    return render_template('index.html', title='Explore', posts=all_posts.items,
+    next_url=next_url, prev_url=prev_url)
 
 
 
@@ -107,12 +126,18 @@ def register():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-        {'author': user, 'body': 'Test post#1'},
-        {'author': user, 'body': 'Test post#2'}
-    ]
+    page = request.args.get('page', 1, type=int)
+
+    # the user profile page will only display posts created by the user himself
+    posts = user.posts.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'],
+    False)
+    next_url = url_for('user', username=user.username, page=posts.next_num)  \
+        if page.has_next else None
+    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+        if page.has_prev else None
     form = EmptyForm()
-    return render_template('user.html', user=user, posts=posts, form=form)
+    return render_template('user.html', user=user, posts=posts.items, form=form, next_url=next_url,
+    prev_url=prev_url)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])

@@ -3,6 +3,6 @@ from app.models import User, Post
 
 @app.shell_context_processor  # adding some pre-imports to shell whenever flask shell is used to test out stuff
 def make_shell_context():
-    return {'db' : db, 'user': User, 'post': Post }
+    return {'db' : db, 'User': User, 'Post': Post}
 
 

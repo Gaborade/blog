@@ -19,4 +19,10 @@
     can be accessed using the backref author -->
     {% include "_post.html" %}
     {% endfor %}
+    <!-- pagination -->
+    {% if prev_url %}
+    <a href="{{prev_url}}">Newer</a>{% endif %}
+    {% if next_url %}
+    <a href="{{next_url}}">Older</a>{% endif %}
+
 {% endblock %}
