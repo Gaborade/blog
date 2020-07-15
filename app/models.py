@@ -1,9 +1,12 @@
+
 from app import db, login
+from app import app
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
-
+import jwt
+from time import time
 
 
 # using a many-to-many relationship model for followers
@@ -60,6 +63,32 @@ class User(UserMixin, db.Model):
         """Returns a boolean value of whether user password matched password hash or not"""
 
         return check_password_hash(self.password_hash, password)
+
+
+    def get_reset_password_token(self, expires_in=600):
+        """This method generates a token for the user for password reset to ensure that the email belongs to 
+        the user. The token will be signed by being verified by the verify_password_token static method. 
+        Verifying the token validates the token. The token payload is going to be in the form of 
+        {'reset_password': 'user_id', 'exp': token_expiration}
+        where reset password value is the id of the User and exp indicates the token expiration. If a token is past
+        its expiration time, it is invlaid"""
+
+        # the payload is always in a dictionary form
+        # .decode('utf-8') because jwt.encode returns in bytes but we need it in a string format
+        return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in},
+        app.config['SECRET_KEY'].decode('utf-8'))
+
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        """This static method verifies the token. When the user clicks on the email link, the token is sent to
+        the function responsible for that endpoint and the token is verified.If User is valid, then the User
+        is identified by the User id"""
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
 
 
     def avatar(self, size):
