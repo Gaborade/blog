@@ -1,52 +1,86 @@
-<!DOCTYPE html>
-<!-- base html with navigation bar -->
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'bootstrap/base.html' %}
+
+
+<!-- the base template has been broken into three main components.
+The block title component, the navbar block component and the 
+application content component -->
+
+<!-- block for title -->
+{% block title %}
     {% if title %}
     <title>{{title}}</title>
     {% else %}
     <title>Welcome to MicroBLOG</title>
     {% endif %}
-</head>
-<body>
-    <div>Microblog: 
-        <!-- don't hardcode urls into templates 
+{% endblock %}
+
+
+<!-- navbar block -->
+{% block navbar %}
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('index') }}">Microblog</a>
+        </div>
+        
+
+          <!-- don't hardcode urls into templates 
         That way in case the links are changed or refactored you won't have
         to comb through all the templates looking to change them-->
-        <a href="{{url_for('index')}}">Home</a>
-        <!-- if user has not logged in yet, display log in link -->
-        {% if current_user.is_anonymous %}
-        <a href="{{url_for('login')}}">Login</a>
-        {% else %}
-        <!-- else if user is not anonymous, then user is logged in 
-        so display logout link rather to make it more intuitive-->
-        <a href="{{url_for('user', username=current_user.username)}}">Profile</a>
-        <a href="{{url_for('explore')}}">Explore</a>
-        <a href="{{url_for('logout')}}">Logout</a>
-        {% endif %}
-    
+
+        <!-- the index and explore links appear on the left hand side of the page -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1"></div>
+        <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{url_for('explore')}}">Explore</a> </li>
+        </ul>
+
+        <!-- user login or profile and logout links appear on right hand side of page  -->
+        <ul class="nav navbar-nav navbar-right">
+          
+            {% if current_user.is_anonymous %}
+            <!-- if user has not logged in yet, display log in link -->
+
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% else %}
+             <!-- else if user is not anonymous, then user is logged in 
+             so display logout and profile linksrather to make it more intuitive-->
+            <li><a href="{{url_for('user', username=current_user.username)}}">Profile</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% endif %}
+        </ul>
     </div>
-    <hr>
+</nav>
+{% endblock %}
+
+
+
+    
+{% block content %}
     <!-- flash messages aren't rendered by default 
     
     the with statements assigns the results of get_flashed_messages
     to messages variable.  The get_flashed_messages has been implemented in
     base.html so in case other pages may utilise this functionality, there will be no need
     to do it again because of template inheritance-->
+    <div class="container"></div>
     {% with messages = get_flashed_messages() %}  
     {% if messages %}
     <ul>
-    {% for message in message %}
-    <li>{{message}}</li>
+    {% for message in messages %}
+    <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endfor %}
     </ul>
     {% endif %}
     {% endwith %}
 
-
-    {% block content %}{% endblock %}
+    <!-- application content is put here -->
+    {% block app_content %}{% endblock %}
     
-</body>
-</html>
+{% endblock %}

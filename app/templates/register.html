@@ -1,54 +1,13 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
-{% block content %}
+{% block app_content %}
 
 <h1>Register</h1>
-<form action="" method="POST" novalidate>
-    <!-- form.hidden_tag() is a hidden field against CSRF attacks -->
-    {{ form.hidden_tag() }}
-    <p>
-        <!-- username field -->
-        {{form.username.label}}<br>
-        {{form.username(size=32)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.username.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        <!-- email field -->
-        {{form.email.label}}<br>
-        {{form.email(size=64)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.email.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        <!-- password field -->
-        {{form.password.label}}<br>
-        {{form.password(size=32)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.password.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        <!--recheck password field -->
-        {{form.password2.label}}<br>
-        {{form.password2(size=32)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.password2.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-    <!-- submit field -->
-    <p>{{form.submit()}}</p>
-
-
-
+<div class="row">
+    <div class="col-md-4">
+        <!-- flask bootstrap comes with a macro that accepts flask wtf form as an object and renders it -->
+        {{ wtf.quick_form(form) }}
+    </div>
+</div>
 {% endblock %}
-

@@ -1,9 +1,9 @@
 from app import app, db 
 from flask import render_template, flash, redirect, url_for
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm, \
-     ResetPasswordForm, ResetPasswordForm
+     ResetPasswordRequestForm, ResetPasswordForm
 from flask_login import login_user, current_user, logout_user, login_required
-from app.email import send_mail, send_password_reset_mail
+from app.email import send_password_reset_mail
 from app.models import User, Post
 from flask import request
 from werkzeug.urls import url_parse
@@ -30,8 +30,8 @@ def index():
     page = request.args.get('page', 1, type=int)
     # NB: Pagination returns pagination objects. This means they are not iterable unless you attach a .items attribute in this case
     posts = current_user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)  # boolean refers to the error flag
-    next_url = url_for('index', page=posts.next_num) if page.has_next else None
-    prev_url = url_for('index', page=posts.prev_num) if page.has_prev else None
+    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
     post_form = PostForm()
     if post_form.validate_on_submit():
         post = Post(body=post_form.post.data, author=current_user)
@@ -59,8 +59,8 @@ def explore():
     all_posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
     # if you use keyword arguments in url_for and the names of those arguments are not referenced directly in URL,
     # Flask uses that keyword as a query string as we intend to do here ie for eg /explore?page=3
-    next_url = url_for('explore', page=all_posts.next_num) if page.has_next else None
-    prev_url = url_for('explore', page=all_posts.prev_num) if page.has_prev else None
+    next_url = url_for('explore', page=all_posts.next_num) if all_posts.has_next else None
+    prev_url = url_for('explore', page=all_posts.prev_num) if all_posts.has_prev else None
     
     # reuses index template which is used for home page as explore pages too
     return render_template('index.html', title='Explore', posts=all_posts.items,
@@ -89,7 +89,7 @@ def login():
         # check if User exists or password is wrong
         user = User.query.filter_by(username=form.username.data).first()  # .first() when you need only one result
         if user is None or not user.check_password(form.password.data):
-            flash('Invalide username or password')
+            flash('Invalid username or password')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         # checks if user is logging in from a redirection from a restricted page
@@ -134,24 +134,24 @@ def user(username):
     posts = user.posts.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'],
     False)
     next_url = url_for('user', username=user.username, page=posts.next_num)  \
-        if page.has_next else None
+        if posts.has_next else None
     prev_url = url_for('user', username=user.username, page=posts.prev_num) \
-        if page.has_prev else None
+        if posts.has_prev else None
     form = EmptyForm()
     return render_template('user.html', user=user, posts=posts.items, form=form, next_url=next_url,
     prev_url=prev_url)
 
 
-@app.route('/request_reset_password')
-def request_reset_password():
+@app.route('/reset_password_request')
+def reset_password_request():
     # if user has already logged in then there is no need to reset password so just redirect to index page
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     request_reset_form = ResetPasswordRequestForm()
     if request_reset_form.validate_on_submit():
-        user = User.query.filter_by(email=reset_form.email.data).first()
+        user = User.query.filter_by(email=request_reset_form.email.data).first()
         if user:
-            send_password_reset_email(user)
+            send_password_reset_mail(user)
         # the flash message is sent even if user is not found
         # this is done so that others can't use to figure out the other users 
         flash('Check your email for instructions to reset your password')

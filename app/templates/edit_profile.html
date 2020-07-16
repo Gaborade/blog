@@ -1,31 +1,12 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
 <h1>Edit Profile</h1>
-<form action="" method="POST">
-    {{form.hidden_tag()}}
-    <p>
-        <!-- username field -->
-        {{form.username.label}}<br>
-        {{form.username(size=32)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.username.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        {{form.about_me.label}}<br>
-        {{form.username(cols=50, rows=4)}}
-        <!-- in case of errors during validation -->
-        {% for error in form.username.errors %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
-
-    <p>
-        {{ form.submit() }}
-    </p>
-
-</form> 
+<div class="row">
+    <div class="col-md-4">
+        <!-- flask bootstrap comes with a macro that accepts flask wtf form as an object and renders it -->
+        {{ wtf.quick_form(form) }}
+    </div>
+</div>
 {% endblock %}
