@@ -12,8 +12,12 @@
             </a>
         </td>
         <td>
+            <!-- using set to pass intermediate variables so username could be passed as a link -->
+            {% set user_link %}
             <a href="{{url_for('user', username=post.author.username)}}">{{post.author.username}}</a>
-            says: 
+            {% endset %}
+            {{ _%(username)s said %(when)s, username=user_link, when=moment(post.timestamp).fromNow()) }}
+            <!-- moment.fromNow() works in this manner : 2 hours ago, 7 minutes ago, a day ago etc -->
             <br>
             {{post.body}}
         </td>

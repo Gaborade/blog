@@ -1,4 +1,3 @@
-
 from app import db, login
 from app import app
 from datetime import datetime
@@ -74,9 +73,9 @@ class User(UserMixin, db.Model):
         its expiration time, it is invlaid"""
 
         # the payload is always in a dictionary form
-        # .decode('utf-8') because jwt.encode returns in bytes but we need it in a string format
+        # .decode('utf-8') because jwt.encode returns the token in bytes but we need it in a string format
         return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in},
-        app.config['SECRET_KEY'].decode('utf-8'))
+        app.config['SECRET_KEY']).decode('utf-8')
 
 
     @staticmethod

@@ -10,7 +10,7 @@ application content component -->
     {% if title %}
     <title>{{title}}</title>
     {% else %}
-    <title>Welcome to MicroBLOG</title>
+    <title>{{ _('Welcome to MicroBLOG') }}</title>
     {% endif %}
 {% endblock %}
 
@@ -37,8 +37,8 @@ application content component -->
         <!-- the index and explore links appear on the left hand side of the page -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1"></div>
         <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{url_for('explore')}}">Explore</a> </li>
+            <li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
+            <li><a href="{{url_for('explore')}}">{{ _('Explore') }}</a> </li>
         </ul>
 
         <!-- user login or profile and logout links appear on right hand side of page  -->
@@ -47,12 +47,12 @@ application content component -->
             {% if current_user.is_anonymous %}
             <!-- if user has not logged in yet, display log in link -->
 
-            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>
             {% else %}
              <!-- else if user is not anonymous, then user is logged in 
              so display logout and profile linksrather to make it more intuitive-->
-            <li><a href="{{url_for('user', username=current_user.username)}}">Profile</a></li>
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            <li><a href="{{url_for('user', username=current_user.username)}}">{{ _('Profile') }}</a></li>
+            <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
             {% endif %}
         </ul>
     </div>
@@ -80,7 +80,19 @@ application content component -->
     {% endif %}
     {% endwith %}
 
+    
+
     <!-- application content is put here -->
     {% block app_content %}{% endblock %}
     
 {% endblock %}
+
+ <!-- for time rendering using Flask moment -->
+ {% block scripts %}
+ <!-- the super() clause preserves the base content ie 
+ the base.html content -->
+ {{ super() }}
+ {{ moment.include_moment() }}
+ {{moment.lang(g.locale) }}
+ {% endblock %} 
+
