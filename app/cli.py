@@ -2,13 +2,13 @@ import os
 import click
 from app import app
 
-"""Using flask's native command line interface to create
+"""Using flask's native command line interface(click) to create
    commandline tools to speed up the workflow of translation"""
 
 # os.system runs the command in the shell of your os. 
 # when os.system runs and there is no error, it gives output of zero(0).
 # however if an error occurs, it gives an output of 1. If error occurs,
-# a runtime error is raised
+# a runtime error is raised that stops the script
 
 @app.cli.group()
 def translate():
@@ -18,7 +18,7 @@ def translate():
 
 
 @translate.command()
-@click.argument('lang')  #   to add an argument to a commandline handler
+@click.argument('lang')  #   to add a language argument to cli
 def init(lang):
     """Initialize a new language"""
     if os.system('pybabel extract -F babel.cfg -k _l -o messages.pot .'):

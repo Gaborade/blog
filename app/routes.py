@@ -251,9 +251,6 @@ def unfollow(username):
 
 
 
-
-
-
 @app.route('/logout')
 def logout():
     logout_user()
